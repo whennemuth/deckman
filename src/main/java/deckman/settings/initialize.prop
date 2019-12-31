@@ -1,0 +1,23 @@
+#THESE ARE THE COMMENTS
+#Wed Nov 19 03:49:07 EST 2008
+DB_UserPwdRequired=true
+ThumbsFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\thumbnails
+FullsizeContextPath=/deckman/images/fullsize
+ReimageOutFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\temp\\reimage\\out
+UnzipInFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\temp\\unzip\\in
+UploadInFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\temp\\upload
+DB_Password=mypassword
+ImagesContextPath=/deckman/images
+ReimageInFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\fullsize
+ThumbnailContextPath=/deckman/images/thumbnails
+DB_User=root
+DB_Driver=com.mysql.jdbc.Driver
+RequireSessionCookieCheck=true
+RequireAdminPassword=true
+DB_ConnectionString=jdbc\:mysql\://localhost/deckman
+DebugMode=true
+UploadOutImageFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\fullsize
+UploadOutZipFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\temp\\unzip\\in
+AdminPassword=coffeepayday
+UnzipOutFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\temp\\unzip\\out
+FullsizeFilePath=C\:\\myTechnicalStuff\\projects\\java\\projects\\netbeans\\web\\deckman\\build\\web\\images\\fullsize
