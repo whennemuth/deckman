@@ -57,29 +57,34 @@ Being updated here to be built with maven and containerized to run as a webapp o
 
          
 
-3. Upload the Cloudformation templates to an AWS S3 bucket
-   Open gitbash and run the following:
+3. **Upload Cloud-formation templates**
+   Get the cloud-formation templates from this repository and upload them to an AWS S3 bucket.
+   Open a gitbash console and run the following:
 
    ```
    # Download the 2 cloudformation templates from this repository:
    cd ~ && \
    curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/deckman.yml > deckman.yml && \
    curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/ami-lookup.yml > ami-lookup.yml && \
-   aws s3 cp deckman.yml s3://deckman/cloudformation/ && \
-   aws s3 cp ami-lookup.yml s3://deckman/cloudformation/
+   aws s3 mb s3://deckman-cloudformation && \
+   aws s3 cp deckman.yml s3://deckman-cloudformation/ && \
+   aws s3 cp ami-lookup.yml s3://deckman-cloudformation/
    ```
 
    
 
-4. Open a gitbash console and create a key pair for the AWS ec2 instance and an alias to use it.
+4. **Upload SSH key**
+
+   When the ec2 instance is being created, it will need to reference a pre-existing ssh key for remote access to it. Create and upload it in this step as follows:
+   Open a gitbash console and run the following:
 
    ```
    cd ~/.ssh
    ssh-keygen -b 2048 -t rsa -f deckman-ec2-rsa -q -N ""
+   aws ec2 import-key-pair --key-name "deckman-ec2-rsa" --public-key-material file://~/.ssh/deckman-ec2-rsa.pub
    ```
 
-   1. Log into your AWS account [here](https://console.aws.amazon.com/console/home?region=us-east-1)
-   2. In AWS go to: `NETWORK & SECURITY --> Key Pairs --> Import Key Pair...
-   3. Paste the contents of the `deckman-ec2-rsa.pub` file into the field provided and click "import"
+   
 
-5. 
+5. **Run cloud-formation**
+   RESUME NEXT:
