@@ -64,18 +64,25 @@ Being updated here to be built with maven and containerized to run as a webapp o
    ```
    # Download the 2 cloudformation templates from this repository:
    cd ~ && \
-   curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/deckman.yml > deckman.yml && \
-   curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/ami-lookup.yml > ami-lookup.yml && \
-   aws s3 mb s3://deckman-cloudformation && \
-   aws s3 cp deckman.yml s3://deckman-cloudformation/ && \
-   aws s3 cp ami-lookup.yml s3://deckman-cloudformation/
-   ```
-
+   curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/deckman.yaml > deckman.yaml && \
+   curl https://raw.githubusercontent.com/whennemuth/deckman/master/aws/ami-lookup.yaml > ami-lookup.yaml
    
-
+   # Or you could get them by cloning this git repo"
+   cd ~ && \
+   git clone https://github.com/whennemuth/deckman.git && \
+cd deckman/aws
+   
+# Create the S3 bucket and upload the templates there.
+   aws s3 mb s3://deckman-cloudformation && \
+   aws s3 cp deckman.yaml s3://deckman-cloudformation/ && \
+   aws s3 cp ami-lookup.yaml s3://deckman-cloudformation/
+   ```
+   
+   
+   
 4. **Upload SSH key**
 
-   When the ec2 instance is being created, it will need to reference a pre-existing ssh key for remote access to it. Create and upload it in this step as follows:
+   When the ec2 instance is being created, it will need to reference a pre-existing ssh key for remote access to it. The default ec2-user will get the public key in its ~/.ssh directory so that you can shell in as this user using the private key. Create and upload it in this step as follows:
    Open a gitbash console and run the following:
 
    ```

@@ -18,9 +18,19 @@ Parameters:
 #    Type: String
 #    Default: wrh1/deckman
 
-  S3BucketName:
+  S3ConfigBucketName:
+    Description: >
+      S3 bucket containing this script, and any other files that need to be uploaded to the
+      ec2 instance being created as part of the AWS::CloudFormation::Init resource.
     Type: String
-    Default: deckman/website  
+    Default: deckman-cloudformation
+
+  S3WebsiteBucketName:
+    Description: > 
+      The location of all images that the deckman loads up through the website.
+      This bucket will be created as an S3 website.
+    Type: String
+    Default: deckman-website  
 
 Resources:
 
@@ -40,7 +50,7 @@ Resources:
       Region:
         Ref: AWS::Region    
 
-  MyEC2Instance:
+  DeckmanEC2Instance:
     Type: AWS::EC2::Instance
     Description: T2 Instance for running the deckman website
 
@@ -54,7 +64,7 @@ Resources:
       InstanceType:
         !Ref EC2InstanceType
       SecurityGroups:
-      - !Ref MyEC2InstanceSecurityGroup
+      - !Ref DeckmanEC2InstanceSecurityGroup
       KeyName: deckman-ec2-rsa
       IamInstanceProfile:
         !Ref DeckmanEC2InstanceProfile
@@ -80,13 +90,115 @@ Resources:
       UserData: 
         "Fn::Base64": !Sub |
           #!/bin/bash
-          # RESUME NEXT
+          # RESUME NEXT:
+          #   1) Write the dockerfile for both the deckman app and the mysql instance 
+          #      Try to use DDL to create starter db
+          #      or...
+          #      Try to load a db dump for the table structure as something to mount to the mysql docker container for it to start from.
+          #   2) Write the docker-compose/docker scripts to be used to bring up the database and java app.
+          #   3) Docker:
+          #        - Commit these docker files to git
+          #        - Load them up to the S3 bucket (include this step in deckman.yaml)
+          #        - Include them as files in the AWS::CloudFormation::Init: resource
+          #        - Have them runnable by including as commands in the AWS::CloudFormation::Init: resource.
+          #   4) Fill in the rest of this userdata section
+          #   5) Put in a resource to create the S3 website bucket. 
+          #   6) Read up and determine if the SecurityGroupIngress needs special filtering to be secure.
+          #   7) Run this script and shell into the ec2 instance created. Since none of the docker stuff was ever
+          #      tested (unless the windows file mounting issues were overcome and local testing was done) the 
+          #      cfn-init call was sure to have failed. Look at the cfn logs and start bug fixing in a linux 
+          #      environment.
       Metadata:
         AWS::CloudFormation::Authentication:
           S3AccessCreds:
             type: S3
             roleName:
-              !Ref MyEC2Role
+              !Ref DeckmanEC2Role
             buckets:
-            - !Ref ConfigBucket
+            - !Ref S3ConfigBucketName
+  
+  
+  DeckmanEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      RoleName: DeckmanEC2Role
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+      Policies:
+      - PolicyName: Deckman-ec2-access-policy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Resource: "*"
+            Action:
+            - cloudwatch:PutMetricData
+            - ec2:DescribeInstanceStatus
+            # Do I just want to give blanket privileges here?
+          - Effect: Allow
+            Resource:
+            - arn:aws:s3:::${S3ConfigBucketName}
+            - arn:aws:s3:::${S3WebsiteBucketName}
+            Action: "*"
+            
+  DeckmanEC2InstanceLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: DeckmanEC2InstanceLogsGroup
+      RetentionInDays: 30
       
+  DeckmanEC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the ec2 instance running the deckman website.
+      GroupName: DeckmanEC2Instance.SG
+      Tags:
+      - Key: Name
+        Value: deckman-ec2.SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+
+
+  KualiEC2AppHostProfile:
+    Type: AWS::IAM::InstanceProfile
+    DependsOn: DeckmanEC2Role
+    Properties:
+      InstanceProfileName: deckman-ec2-access-profile
+      Roles:
+      - Ref: DeckmanEC2Role
+        
+        
+  Outputs:
+    PublicIP:
+      Value:
+        !GetAtt DeckmanEC2Instance.PublicIp
+    PublicDnsName:
+      Value:
+        !GetAtt DeckmanEC2Instance.PublicDnsName            
+    DeckmanEC2Role:
+      Description: >
+        The Amazon Resource Name for the Role the EC2 instance the deckman website is running on is to assume.
+      Value:
+        !GetAtt DeckmanEC2Role.Arn
+  
