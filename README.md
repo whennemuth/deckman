@@ -69,7 +69,7 @@ Being updated here to be built with maven and containerized to run as a webapp o
    
    # Or you could get them by cloning this git repo"
    cd ~ && \
-   git clone https://github.com/whennemuth/deckman.git && \
+   git clone https://github.com/whennemuth/deckman.git && \ 
 cd deckman/aws
    
 # Create the S3 bucket and upload the templates there.
